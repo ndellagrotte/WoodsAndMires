@@ -57,7 +57,7 @@ public final class WamBlocks {
     public static final Block FELL_LICHEN = register("fell_lichen", createFlowerSettings().mapColor(MapColor.OFF_WHITE).offset(AbstractBlock.OffsetType.XZ), LichenBlock::new);
     public static final Block POTTED_FELL_LICHEN = register("potted_fell_lichen", Blocks.createFlowerPotSettings(), settings -> new FlowerPotBlock(FELL_LICHEN, settings), null);
     public static final Block HEATHER = register("heather", createFlowerSettings(), settings -> new HeatherBlock(StatusEffects.REGENERATION, 8, settings));
-    public static final Block POTTED_HEATHER = register("potted_fell_heather", Blocks.createFlowerPotSettings(), settings -> new FlowerPotBlock(HEATHER, settings), null);
+    public static final Block POTTED_HEATHER = register("potted_heather", Blocks.createFlowerPotSettings(), settings -> new FlowerPotBlock(HEATHER, settings), null);
 
     private WamBlocks() {
     }
