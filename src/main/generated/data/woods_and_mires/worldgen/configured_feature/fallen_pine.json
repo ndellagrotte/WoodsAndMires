@@ -1,0 +1,40 @@
+{
+  "type": "woods_and_mires:fallen_log",
+  "config": {
+    "aged_height_fraction": {
+      "type": "minecraft:uniform",
+      "max_exclusive": 1.2,
+      "min_inclusive": -0.2
+    },
+    "aged_log": "woods_and_mires:aged_pine_log",
+    "length": {
+      "type": "minecraft:uniform",
+      "max_inclusive": 6,
+      "min_inclusive": 2
+    },
+    "main_log": "woods_and_mires:pine_log",
+    "top_decoration": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "minecraft:air"
+          },
+          "weight": 3
+        },
+        {
+          "data": {
+            "Name": "minecraft:brown_mushroom"
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:red_mushroom"
+          },
+          "weight": 1
+        }
+      ]
+    }
+  }
+}

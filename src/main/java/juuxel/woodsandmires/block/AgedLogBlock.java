@@ -5,20 +5,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.PillarBlock;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.math.Direction;
 
 public class AgedLogBlock extends PillarBlock {
     public static final BooleanProperty MID = BooleanProperty.of("mid");
-    private final Block main;
-
     public AgedLogBlock(Block main, Settings settings) {
-        super(settings);
-        this.main = main;
+        super(settings.overrideTranslationKey(main.getTranslationKey()));
         setDefaultState(getDefaultState().with(MID, false));
-    }
-
-    @Override
-    public String getTranslationKey() {
-        return main.getTranslationKey();
     }
 
     @Override

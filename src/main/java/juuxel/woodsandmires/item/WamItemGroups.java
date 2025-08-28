@@ -1,6 +1,8 @@
 package juuxel.woodsandmires.item;
 
+import juuxel.woodsandmires.WoodsAndMires;
 import juuxel.woodsandmires.block.WamBlocks;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
@@ -9,12 +11,17 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.*;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public final class WamItemGroups {
+    private static final RegistryKey<ItemGroup> ITEM_GROUP = RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of(WoodsAndMires.ID, "items"));
+
     public static void init() {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
             entries.addAfter(Items.WARPED_BUTTON,
@@ -73,6 +80,14 @@ public final class WamItemGroups {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(entries -> {
             entries.add(WamItems.PINE_CONE_JAM);
         });
+
+        Registry.register(Registries.ITEM_GROUP, ITEM_GROUP, FabricItemGroup.builder()
+            .displayName(Text.literal("Woods and Mires"))
+            .icon(() -> WamBlocks.PINE_SAPLING.asItem().getDefaultStack())
+            .entries((context, entries) -> {
+                Registries.ITEM.streamKeys().filter(itemRegistryKey -> itemRegistryKey.getValue().getNamespace().equals(WoodsAndMires.ID)).map(Registries.ITEM::get).forEach(entries::add);
+            }).build()
+        );
     }
 
     private static void addBefore(FabricItemGroupEntries entries, Predicate<ItemStack> predicate, ItemConvertible... items) {

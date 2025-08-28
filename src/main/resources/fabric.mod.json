@@ -25,7 +25,8 @@
     ],
     "terrablender": [
       "juuxel.woodsandmires.terrablender.WoodsAndMiresTb"
-    ]
+    ],
+    "fabric-datagen": ["juuxel.woodsandmires.data.WamDataGenerator"]
   },
   "accessWidener": "woods_and_mires.accesswidener",
   "mixins": [
@@ -35,8 +36,8 @@
   "depends": {
     "fabricloader": ">=0.14.21",
     "fabric": ">=0.86.0",
-    "fabric-biome-api-v1": "^13.0.0",
-    "minecraft": "~1.20.1"
+    "fabric-biome-api-v1": ">=13.0.0",
+    "minecraft": ">=1.21.8"
   },
   "recommends": {
     "terrablender": ">=3.0"

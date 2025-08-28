@@ -23,4 +23,4 @@ bin/
 # fabric
 
 run/
-src/generated/resources/.cache/
+src/main/generated/.cache/

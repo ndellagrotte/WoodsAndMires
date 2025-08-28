@@ -1,5 +1,6 @@
 package juuxel.woodsandmires.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PlantBlock;
 import net.minecraft.block.ShapeContext;
@@ -16,13 +17,18 @@ public class LichenBlock extends PlantBlock {
     }
 
     @Override
+    protected MapCodec<? extends PlantBlock> getCodec() {
+        return null;
+    }
+
+    @Override
     protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
         return floor.isIn(WamBlockTags.LICHEN_PLANTABLE_ON);
     }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        Vec3d vec3d = state.getModelOffset(world, pos);
+        Vec3d vec3d = state.getModelOffset( pos);
         return SHAPE.offset(vec3d.x, vec3d.y, vec3d.z);
     }
 }

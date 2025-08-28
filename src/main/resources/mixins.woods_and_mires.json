@@ -3,10 +3,9 @@
   "minVersion": "0.8",
   "package": "juuxel.woodsandmires.mixin",
   "compatibilityLevel": "JAVA_17",
-
   "mixins": [
-    "BoatDispenserBehaviorMixin",
-    "BoatEntityMixin"
+    "DataProviderMixin",
+    "RecipeProviderMixin"
   ],
 
   "injectors": {
