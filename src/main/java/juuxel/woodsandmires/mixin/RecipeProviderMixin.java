@@ -39,7 +39,7 @@ abstract class RecipeProviderMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipe/ShapedRecipeJsonBuilder;input(Ljava/lang/Character;Lnet/minecraft/item/ItemConvertible;)Lnet/minecraft/data/recipe/ShapedRecipeJsonBuilder;")
     )
     private static ShapedRecipeJsonBuilder replaceChain(ShapedRecipeJsonBuilder builder, Character c, ItemConvertible item) {
-        if (item.asItem() == Items.CHAIN) {
+        if (item.asItem() == Items.IRON_CHAIN) {
             return builder.input(c, CommonItemTags.CHAINS);
         }
         return builder.input(c, item);

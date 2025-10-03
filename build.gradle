@@ -64,8 +64,8 @@ dependencies {
     modImplementation "com.github.glitchfiend:TerraBlender-fabric:$project.terrablender_version"
     implementation include("com.typesafe:config:$project.typesafe_config_version")
 
-    modImplementation 'eu.pb4:polymer-resource-pack:0.13.11+1.21.8'
-    modImplementation 'eu.pb4:polymer-resource-pack-extras:0.13.11+1.21.8'
+    modImplementation "eu.pb4:polymer-resource-pack:$project.polymer_version"
+    modImplementation "eu.pb4:polymer-resource-pack-extras:$project.polymer_version"
 
     // Used for sorting features in the data generator
     implementation "org.jgrapht:jgrapht-core:$project.jgrapht_version"

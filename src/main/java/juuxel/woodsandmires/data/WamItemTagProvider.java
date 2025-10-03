@@ -6,6 +6,8 @@ import juuxel.woodsandmires.item.WamItemTags;
 import juuxel.woodsandmires.item.WamItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.minecraft.data.tag.ProvidedTagBuilder;
+import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.ItemTags;
@@ -66,8 +68,10 @@ public final class WamItemTagProvider extends FabricTagProvider.ItemTagProvider 
             .add(WamBlocks.PINE_SNAG_LOG.asItem(), WamBlocks.PINE_SNAG_WOOD.asItem());
 
         // Common tags
-        valueLookupBuilder(CommonItemTags.CHAINS)
-            .add(Items.CHAIN);
+
+        ProvidedTagBuilder<Item, Item> chains = valueLookupBuilder(CommonItemTags.CHAINS);
+        chains.add(Items.IRON_CHAIN);
+        Items.COPPER_CHAINS.forEach(chains::add);
         valueLookupBuilder(CommonItemTags.HONEY)
             .add(WamItems.PINE_CONE_JAM);
         valueLookupBuilder(CommonItemTags.JAMS)
