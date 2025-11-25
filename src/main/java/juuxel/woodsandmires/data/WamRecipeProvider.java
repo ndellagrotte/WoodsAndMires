@@ -15,6 +15,7 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,7 @@ public final class WamRecipeProvider extends FabricRecipeProvider {
             @Override
             public void generate() {
                 // Wooden
-                generateFamily(PINE_FAMILY, FeatureSet.empty());
+                generateFamily(PINE_FAMILY, FeatureSet.of(FeatureFlags.VANILLA));
                 offerPlanksRecipe(WamBlocks.PINE_PLANKS, WamItemTags.THICK_PINE_LOGS, 4);
                 createShapeless(RecipeCategory.BUILDING_BLOCKS, WamBlocks.PINE_PLANKS, 2)
                     .input(WamBlocks.PINE_SHRUB_LOG)
