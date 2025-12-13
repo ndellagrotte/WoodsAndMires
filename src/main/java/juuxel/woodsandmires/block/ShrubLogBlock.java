@@ -93,9 +93,8 @@ public class ShrubLogBlock extends PillarBlock implements Waterloggable {
             if (!world.isClient()) {
                 world.setBlockState(pos, state.with(HAS_LEAVES, true));
                 var soundGroup = leaves.getDefaultState().getSoundGroup();
-                player.playSoundToPlayer(soundGroup.getPlaceSound(), SoundCategory.BLOCKS,
-                    (soundGroup.getVolume() + 1f) / 2f,
-                    soundGroup.getPitch() * 0.8f);
+
+                world.playSound(null, pos, soundGroup.getPlaceSound(), SoundCategory.BLOCKS, (soundGroup.getVolume() + 1f) / 2f, soundGroup.getPitch() * 0.8f);
                 return ActionResult.CONSUME;
             }
 

@@ -11,6 +11,8 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.command.permission.PermissionCheck;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -41,8 +43,8 @@ public final class WamDev {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(literal("wam")
-                .then(literal("mark").requires(source -> source.hasPermissionLevel(4)).executes(WamDev::mark))
-                .then(literal("recall").requires(source -> source.hasPermissionLevel(4)).executes(WamDev::recall)));
+                .then(literal("mark").requires(CommandManager.requirePermissionLevel(CommandManager.OWNERS_CHECK)).executes(WamDev::mark))
+                .then(literal("recall").requires(CommandManager.requirePermissionLevel(CommandManager.OWNERS_CHECK)).executes(WamDev::recall)));
         });
     }
 

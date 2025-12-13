@@ -7,7 +7,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.sound.BiomeMoodSound;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.biome.*;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
@@ -128,7 +128,7 @@ public final class WamBiomes {
 
         SpawnSettings spawnSettings = spawnSettings(builder -> {
             DefaultBiomeFeatures.addFarmAnimals(builder);
-            DefaultBiomeFeatures.addBatsAndMonsters(builder);
+            DefaultBiomeFeatures.addCaveAndMonsters(builder);
 
             builder.spawn(SpawnGroup.CREATURE, 5, new SpawnSettings.SpawnEntry(EntityType.WOLF, 4, 4));
             builder.spawn(SpawnGroup.CREATURE, 4, new SpawnSettings.SpawnEntry(EntityType.FOX, 2, 4));
@@ -138,13 +138,10 @@ public final class WamBiomes {
             .effects(
                 new BiomeEffects.Builder()
                     .waterColor(OverworldBiomeCreator.DEFAULT_WATER_COLOR)
-                    .waterFogColor(OverworldBiomeCreator.DEFAULT_WATER_FOG_COLOR)
-                    .fogColor(OverworldBiomeCreator.DEFAULT_FOG_COLOR)
                     .foliageColor(0x43C44F)
-                    .skyColor(getSkyColor(temperature))
-                    .moodSound(BiomeMoodSound.CAVE)
                     .build()
             )
+            .setEnvironmentAttribute(EnvironmentAttributes.SKY_COLOR_VISUAL, getSkyColor(temperature))
             .downfall(0.6f)
             .temperature(temperature)
             .generationSettings(generationSettings)
@@ -213,21 +210,18 @@ public final class WamBiomes {
 
         SpawnSettings spawnSettings = spawnSettings(builder -> {
             DefaultBiomeFeatures.addFarmAnimals(builder);
-            DefaultBiomeFeatures.addBatsAndMonsters(builder);
+            DefaultBiomeFeatures.addCaveAndMonsters(builder);
         });
 
         return new Biome.Builder()
             .effects(
                 new BiomeEffects.Builder()
                     .waterColor(0x7B6D1B)
-                    .waterFogColor(0x564C13)
-                    .fogColor(OverworldBiomeCreator.DEFAULT_FOG_COLOR)
-                    .moodSound(BiomeMoodSound.CAVE)
                     .foliageColor(0xBFA243)
                     .grassColor(0xADA24C)
-                    .skyColor(getSkyColor(0.6f))
                     .build()
             )
+            .setEnvironmentAttribute(EnvironmentAttributes.SKY_COLOR_VISUAL, getSkyColor(0.6f))
             .downfall(0.9f)
             .temperature(0.6f)
             .generationSettings(generationSettings)
@@ -237,7 +231,7 @@ public final class WamBiomes {
 
     private Biome fell(float temperature, Consumer<GenerationSettings.LookupBackedBuilder> generationSettingsConfigurator) {
         SpawnSettings spawnSettings = spawnSettings(builder -> {
-            DefaultBiomeFeatures.addBatsAndMonsters(builder);
+            DefaultBiomeFeatures.addCaveAndMonsters(builder);
 
             builder.spawn(SpawnGroup.CREATURE, 5, new SpawnSettings.SpawnEntry(EntityType.WOLF, 4, 4));
             builder.spawn(SpawnGroup.CREATURE, 4, new SpawnSettings.SpawnEntry(EntityType.FOX, 2, 4));
@@ -253,12 +247,9 @@ public final class WamBiomes {
             .effects(
                 new BiomeEffects.Builder()
                     .waterColor(OverworldBiomeCreator.DEFAULT_WATER_COLOR)
-                    .waterFogColor(OverworldBiomeCreator.DEFAULT_WATER_FOG_COLOR)
-                    .fogColor(OverworldBiomeCreator.DEFAULT_FOG_COLOR)
-                    .skyColor(getSkyColor(temperature))
-                    .moodSound(BiomeMoodSound.CAVE)
                     .build()
             )
+            .setEnvironmentAttribute(EnvironmentAttributes.SKY_COLOR_VISUAL, getSkyColor(temperature))
             .downfall(0.7f)
             .temperature(temperature)
             .generationSettings(generationSettings)
@@ -307,18 +298,15 @@ public final class WamBiomes {
             builder.spawn(SpawnGroup.CREATURE, 8, new SpawnSettings.SpawnEntry(EntityType.WOLF, 4, 4))
                 .spawn(SpawnGroup.CREATURE, 4, new SpawnSettings.SpawnEntry(EntityType.RABBIT, 2, 3))
                 .spawn(SpawnGroup.CREATURE, 8, new SpawnSettings.SpawnEntry(EntityType.FOX, 2, 4));
-            DefaultBiomeFeatures.addBatsAndMonsters(builder);
+            DefaultBiomeFeatures.addCaveAndMonsters(builder);
         });
         return new Biome.Builder()
             .effects(
                 new BiomeEffects.Builder()
                     .waterColor(OverworldBiomeCreator.DEFAULT_WATER_COLOR)
-                    .waterFogColor(OverworldBiomeCreator.DEFAULT_WATER_FOG_COLOR)
-                    .fogColor(OverworldBiomeCreator.DEFAULT_FOG_COLOR)
-                    .skyColor(getSkyColor(-0.2f))
-                    .moodSound(BiomeMoodSound.CAVE)
                     .build()
             )
+            .setEnvironmentAttribute(EnvironmentAttributes.SKY_COLOR_VISUAL, getSkyColor(-0.2f))
             .downfall(0.8f)
             .temperature(-0.2f)
             .generationSettings(generationSettings)

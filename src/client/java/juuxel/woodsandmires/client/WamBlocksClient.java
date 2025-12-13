@@ -12,12 +12,6 @@ import static juuxel.woodsandmires.block.WamBlocks.*;
 public final class WamBlocksClient {
     public static void init() {
         BlockRenderLayerMap.putBlocks(
-            BlockRenderLayer.CUTOUT_MIPPED,
-            PINE_LEAVES,
-            PINE_SHRUB_LOG
-        );
-
-        BlockRenderLayerMap.putBlocks(
             BlockRenderLayer.CUTOUT,
             PINE_DOOR,
             PINE_TRAPDOOR,
@@ -29,7 +23,8 @@ public final class WamBlocksClient {
             FELL_LICHEN,
             POTTED_FELL_LICHEN,
             HEATHER,
-            POTTED_HEATHER
+            POTTED_HEATHER,
+            PINE_SHRUB_LOG
         );
 
         ColorProviderRegistry.BLOCK.register(
