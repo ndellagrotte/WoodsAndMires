@@ -3,10 +3,10 @@ package juuxel.woodsandmires.terrablender;
 import juuxel.woodsandmires.WoodsAndMires;
 import juuxel.woodsandmires.biome.WamBiomeKeys;
 import juuxel.woodsandmires.config.WamConfig;
-import net.minecraft.block.Blocks;
-import net.minecraft.world.gen.noise.NoiseParametersKeys;
-import net.minecraft.world.gen.surfacebuilder.MaterialRules;
-import net.minecraft.world.gen.surfacebuilder.VanillaSurfaceRules;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Noises;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.data.worldgen.SurfaceRuleData;
 import terrablender.api.Regions;
 import terrablender.api.SurfaceRuleManager;
 import terrablender.api.TerraBlenderApi;
@@ -19,49 +19,49 @@ public final class WoodsAndMiresTb implements TerraBlenderApi {
         SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, WoodsAndMires.ID, createSurfaceRule());
     }
 
-    private static MaterialRules.MaterialRule createSurfaceRule() {
-        MaterialRules.MaterialCondition hasWater = MaterialRules.water(0, 0);
-        MaterialRules.MaterialRule stone = VanillaSurfaceRules.block(Blocks.STONE);
-        MaterialRules.MaterialRule snowBlock = VanillaSurfaceRules.block(Blocks.SNOW_BLOCK);
-        MaterialRules.MaterialRule powderSnow = MaterialRules.condition(
-            MaterialRules.noiseThreshold(NoiseParametersKeys.POWDER_SNOW, 0.35, 0.6),
-            MaterialRules.condition(hasWater, VanillaSurfaceRules.block(Blocks.POWDER_SNOW))
+    private static SurfaceRules.RuleSource createSurfaceRule() {
+        SurfaceRules.ConditionSource hasWater = SurfaceRules.waterBlockCheck(0, 0);
+        SurfaceRules.RuleSource stone = SurfaceRuleData.makeStateRule(Blocks.STONE);
+        SurfaceRules.RuleSource snowBlock = SurfaceRuleData.makeStateRule(Blocks.SNOW_BLOCK);
+        SurfaceRules.RuleSource powderSnow = SurfaceRules.ifTrue(
+            SurfaceRules.noiseCondition(Noises.POWDER_SNOW, 0.35, 0.6),
+            SurfaceRules.ifTrue(hasWater, SurfaceRuleData.makeStateRule(Blocks.POWDER_SNOW))
         );
 
-        return MaterialRules.condition(MaterialRules.STONE_DEPTH_FLOOR, MaterialRules.sequence(
-            MaterialRules.condition(
-                MaterialRules.biome(WamBiomeKeys.FELL),
-                MaterialRules.condition(VanillaSurfaceRules.surfaceNoiseThreshold(1.75), stone)
+        return SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.sequence(
+            SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(WamBiomeKeys.FELL),
+                SurfaceRules.ifTrue(SurfaceRuleData.surfaceNoiseAbove(1.75), stone)
             ),
-            MaterialRules.condition(
-                MaterialRules.biome(WamBiomeKeys.OLD_GROWTH_PINE_FOREST),
-                MaterialRules.condition(
-                    VanillaSurfaceRules.surfaceNoiseThreshold(1.75),
-                    VanillaSurfaceRules.block(Blocks.COARSE_DIRT)
+            SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(WamBiomeKeys.OLD_GROWTH_PINE_FOREST),
+                SurfaceRules.ifTrue(
+                    SurfaceRuleData.surfaceNoiseAbove(1.75),
+                    SurfaceRuleData.makeStateRule(Blocks.COARSE_DIRT)
                 )
             ),
-            MaterialRules.condition(
-                MaterialRules.biome(WamBiomeKeys.PINY_GROVE),
-                MaterialRules.sequence(
+            SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(WamBiomeKeys.PINY_GROVE),
+                SurfaceRules.sequence(
                     powderSnow,
-                    MaterialRules.condition(hasWater, snowBlock),
-                    VanillaSurfaceRules.block(Blocks.DIRT)
+                    SurfaceRules.ifTrue(hasWater, snowBlock),
+                    SurfaceRuleData.makeStateRule(Blocks.DIRT)
                 )
             ),
-            MaterialRules.condition(
-                MaterialRules.biome(WamBiomeKeys.SNOWY_PINE_FOREST),
-                MaterialRules.sequence(
-                    MaterialRules.condition(MaterialRules.steepSlope(), stone),
+            SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(WamBiomeKeys.SNOWY_PINE_FOREST),
+                SurfaceRules.sequence(
+                    SurfaceRules.ifTrue(SurfaceRules.steep(), stone),
                     powderSnow,
-                    MaterialRules.condition(hasWater, snowBlock)
+                    SurfaceRules.ifTrue(hasWater, snowBlock)
                 )
             ),
-            MaterialRules.condition(
-                MaterialRules.biome(WamBiomeKeys.SNOWY_FELL),
-                MaterialRules.sequence(
-                    MaterialRules.condition(VanillaSurfaceRules.surfaceNoiseThreshold(1.75), stone),
-                    MaterialRules.condition(MaterialRules.steepSlope(), stone),
-                    MaterialRules.condition(hasWater, snowBlock)
+            SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(WamBiomeKeys.SNOWY_FELL),
+                SurfaceRules.sequence(
+                    SurfaceRules.ifTrue(SurfaceRuleData.surfaceNoiseAbove(1.75), stone),
+                    SurfaceRules.ifTrue(SurfaceRules.steep(), stone),
+                    SurfaceRules.ifTrue(hasWater, snowBlock)
                 )
             )
         ));

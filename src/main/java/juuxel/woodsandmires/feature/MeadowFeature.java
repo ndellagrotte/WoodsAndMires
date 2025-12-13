@@ -1,11 +1,11 @@
 package juuxel.woodsandmires.feature;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 public class MeadowFeature extends Feature<MeadowFeatureConfig> {
     public MeadowFeature(Codec<MeadowFeatureConfig> configCodec) {
@@ -13,13 +13,13 @@ public class MeadowFeature extends Feature<MeadowFeatureConfig> {
     }
 
     @Override
-    public boolean generate(FeatureContext<MeadowFeatureConfig> context) {
-        var world = context.getWorld();
-        var pos = context.getOrigin();
-        var config = context.getConfig();
-        var random = context.getRandom();
+    public boolean place(FeaturePlaceContext<MeadowFeatureConfig> context) {
+        var world = context.level();
+        var pos = context.origin();
+        var config = context.config();
+        var random = context.random();
 
-        BlockPos.Mutable mut = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
         boolean generated = false;
 
         for (int x = 0; x < 16; x++) {
@@ -28,14 +28,14 @@ public class MeadowFeature extends Feature<MeadowFeatureConfig> {
 
                 int xo = pos.getX() + x;
                 int zo = pos.getZ() + z;
-                int y = world.getTopY(Heightmap.Type.MOTION_BLOCKING, xo, zo);
+                int y = world.getHeight(Heightmap.Types.MOTION_BLOCKING, xo, zo);
                 mut.set(xo, y, zo);
 
                 if (!config.allowedPlacement.test(world, mut)) continue;
 
-                BlockState vegetation = config.stateProvider.get(random, mut);
-                if (world.isAir(mut) && vegetation.canPlaceAt(world, mut)) {
-                    setBlockState(world, mut, vegetation);
+                BlockState vegetation = config.stateProvider.getState(random, mut);
+                if (world.isEmptyBlock(mut) && vegetation.canSurvive(world, mut)) {
+                    setBlock(world, mut, vegetation);
                     generated = true;
                 }
             }

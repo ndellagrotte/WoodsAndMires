@@ -1,47 +1,47 @@
 package juuxel.woodsandmires.mixin;
 
 import juuxel.woodsandmires.data.builtin.CommonItemTags;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.data.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.Items;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(RecipeGenerator.class)
+@Mixin(RecipeProvider.class)
 abstract class RecipeProviderMixin {
     @Redirect(
-        method = {"createFenceRecipe", "createFenceGateRecipe", "createSignRecipe"},
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipe/ShapedRecipeJsonBuilder;input(Ljava/lang/Character;Lnet/minecraft/item/ItemConvertible;)Lnet/minecraft/data/recipe/ShapedRecipeJsonBuilder;")
+        method = {"fenceBuilder", "fenceGateBuilder", "signBuilder"},
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipes/ShapedRecipeBuilder;define(Ljava/lang/Character;Lnet/minecraft/world/level/ItemLike;)Lnet/minecraft/data/recipes/ShapedRecipeBuilder;")
     )
-    private static ShapedRecipeJsonBuilder replaceStick(ShapedRecipeJsonBuilder builder, Character c, ItemConvertible item) {
+    private static ShapedRecipeBuilder replaceStick(ShapedRecipeBuilder builder, Character c, ItemLike item) {
         if (item.asItem() == Items.STICK) {
-            return builder.input(c, CommonItemTags.WOODEN_RODS);
+            return builder.define(c, CommonItemTags.WOODEN_RODS);
         }
-        return builder.input(c, item);
+        return builder.define(c, item);
     }
 
     @Redirect(
-        method = "offerChestBoatRecipe",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipe/ShapelessRecipeJsonBuilder;input(Lnet/minecraft/item/ItemConvertible;)Lnet/minecraft/data/recipe/ShapelessRecipeJsonBuilder;")
+        method = "chestBoat",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipes/ShapelessRecipeBuilder;requires(Lnet/minecraft/world/level/ItemLike;)Lnet/minecraft/data/recipes/ShapelessRecipeBuilder;")
     )
-    private static ShapelessRecipeJsonBuilder replaceChest(ShapelessRecipeJsonBuilder builder, ItemConvertible input) {
+    private static ShapelessRecipeBuilder replaceChest(ShapelessRecipeBuilder builder, ItemLike input) {
         if (input.asItem() == Items.CHEST) {
-            return builder.input(CommonItemTags.WOODEN_CHESTS);
+            return builder.requires(CommonItemTags.WOODEN_CHESTS);
         }
-        return builder.input(input);
+        return builder.requires(input);
     }
 
     @Redirect(
-        method = "offerHangingSignRecipe",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipe/ShapedRecipeJsonBuilder;input(Ljava/lang/Character;Lnet/minecraft/item/ItemConvertible;)Lnet/minecraft/data/recipe/ShapedRecipeJsonBuilder;")
+        method = "hangingSign",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/data/recipes/ShapedRecipeBuilder;define(Ljava/lang/Character;Lnet/minecraft/world/level/ItemLike;)Lnet/minecraft/data/recipes/ShapedRecipeBuilder;")
     )
-    private static ShapedRecipeJsonBuilder replaceChain(ShapedRecipeJsonBuilder builder, Character c, ItemConvertible item) {
+    private static ShapedRecipeBuilder replaceChain(ShapedRecipeBuilder builder, Character c, ItemLike item) {
         if (item.asItem() == Items.IRON_CHAIN) {
-            return builder.input(c, CommonItemTags.CHAINS);
+            return builder.define(c, CommonItemTags.CHAINS);
         }
-        return builder.input(c, item);
+        return builder.define(c, item);
     }
 }

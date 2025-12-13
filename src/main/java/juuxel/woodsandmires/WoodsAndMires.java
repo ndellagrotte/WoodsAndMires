@@ -12,13 +12,13 @@ import juuxel.woodsandmires.item.WamItemGroups;
 import juuxel.woodsandmires.tree.WamTreeDecorators;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public final class WoodsAndMires implements ModInitializer {
     public static final String ID = "woods_and_mires";
 
     public static Identifier id(String path) {
-        return Identifier.of(ID, path);
+        return Identifier.fromNamespaceAndPath(ID, path);
     }
 
     @Override

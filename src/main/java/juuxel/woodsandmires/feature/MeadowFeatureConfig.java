@@ -2,16 +2,16 @@ package juuxel.woodsandmires.feature;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.gen.blockpredicate.BlockPredicate;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.stateprovider.BlockStateProvider;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
-public final class MeadowFeatureConfig implements FeatureConfig {
+public final class MeadowFeatureConfig implements FeatureConfiguration {
     public static final Codec<MeadowFeatureConfig> CODEC = RecordCodecBuilder.create(
         instance -> instance.group(
-            BlockStateProvider.TYPE_CODEC.fieldOf("state_provider").forGetter(MeadowFeatureConfig::getStateProvider),
+            BlockStateProvider.CODEC.fieldOf("state_provider").forGetter(MeadowFeatureConfig::getStateProvider),
             Codec.FLOAT.fieldOf("chance").forGetter(MeadowFeatureConfig::getChance),
-            BlockPredicate.BASE_CODEC.optionalFieldOf("allowed_placement", BlockPredicate.alwaysTrue()).forGetter(MeadowFeatureConfig::getAllowedPlacement)
+            BlockPredicate.CODEC.optionalFieldOf("allowed_placement", BlockPredicate.alwaysTrue()).forGetter(MeadowFeatureConfig::getAllowedPlacement)
         ).apply(instance, MeadowFeatureConfig::new)
     );
 

@@ -5,25 +5,28 @@ import juuxel.woodsandmires.block.WamBlocks;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.*;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class WamItemGroups {
-    private static final RegistryKey<ItemGroup> ITEM_GROUP = RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of(WoodsAndMires.ID, "items"));
+    private static final ResourceKey<CreativeModeTab> ITEM_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(WoodsAndMires.ID, "items"));
 
     public static void init() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
             entries.addAfter(Items.WARPED_BUTTON,
                 WamBlocks.PINE_LOG,
                 WamBlocks.AGED_PINE_LOG,
@@ -45,7 +48,7 @@ public final class WamItemGroups {
                 WamBlocks.PINE_BUTTON
             );
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
             entries.addAfter(Items.WARPED_STEM,
                 WamBlocks.PINE_LOG,
                 WamBlocks.AGED_PINE_LOG,
@@ -63,41 +66,41 @@ public final class WamItemGroups {
             entries.addBefore(Items.GLOW_LICHEN,
                 WamBlocks.FELL_LICHEN);
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(entries -> {
             entries.addAfter(Items.WARPED_HANGING_SIGN,
                 WamBlocks.PINE_SIGN,
                 WamBlocks.PINE_HANGING_SIGN);
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
             entries.addAfter(Items.BAMBOO_CHEST_RAFT,
                 WamItems.PINE_BOAT,
                 WamItems.PINE_CHEST_BOAT);
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
-            addBefore(entries, stack -> stack.isOf(Items.ENCHANTED_BOOK),
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+            addBefore(entries, stack -> stack.is(Items.ENCHANTED_BOOK),
                 WamItems.PINE_CONE);
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(entries -> {
-            entries.add(WamItems.PINE_CONE_JAM);
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(entries -> {
+            entries.accept(WamItems.PINE_CONE_JAM);
         });
 
-        Registry.register(Registries.ITEM_GROUP, ITEM_GROUP, FabricItemGroup.builder()
-            .displayName(Text.literal("Woods and Mires"))
-            .icon(() -> WamBlocks.PINE_SAPLING.asItem().getDefaultStack())
-            .entries((context, entries) -> {
-                Registries.ITEM.streamKeys().filter(itemRegistryKey -> itemRegistryKey.getValue().getNamespace().equals(WoodsAndMires.ID)).map(Registries.ITEM::get).forEach(entries::add);
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ITEM_GROUP, FabricItemGroup.builder()
+            .title(Component.literal("Woods and Mires"))
+            .icon(() -> WamBlocks.PINE_SAPLING.asItem().getDefaultInstance())
+            .displayItems((context, entries) -> {
+                BuiltInRegistries.ITEM.listElementIds().filter(itemRegistryKey -> itemRegistryKey.identifier().getNamespace().equals(WoodsAndMires.ID)).map(BuiltInRegistries.ITEM::getValue).forEach(entries::accept);
             }).build()
         );
     }
 
-    private static void addBefore(FabricItemGroupEntries entries, Predicate<ItemStack> predicate, ItemConvertible... items) {
+    private static void addBefore(FabricItemGroupEntries entries, Predicate<ItemStack> predicate, ItemLike... items) {
         var stacks = Arrays.stream(items).map(ItemStack::new).toList();
-        entries.addBefore(predicate, stacks, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
+        entries.addBefore(predicate, stacks, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
     }
 
-    private static void addAfterFirstEnabled(FabricItemGroupEntries entries, List<Item> after, ItemConvertible... items) {
+    private static void addAfterFirstEnabled(FabricItemGroupEntries entries, List<Item> after, ItemLike... items) {
         Item start = after.stream()
-            .filter(item -> item.getRequiredFeatures().isSubsetOf(entries.getEnabledFeatures()))
+            .filter(item -> item.requiredFeatures().isSubsetOf(entries.getEnabledFeatures()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("Could not find any of the items " + after));
         entries.addAfter(start, items);

@@ -4,19 +4,18 @@ import com.google.common.collect.ImmutableList;
 import juuxel.woodsandmires.block.WamBlocks;
 import juuxel.woodsandmires.feature.WamConfiguredFeatureKeys;
 import juuxel.woodsandmires.feature.WamPlacedFeatureKeys;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registerable;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.math.intprovider.ClampedIntProvider;
-import net.minecraft.util.math.intprovider.UniformIntProvider;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.PlacedFeature;
-import net.minecraft.world.gen.feature.PlacedFeatures;
-import net.minecraft.world.gen.feature.VegetationPlacedFeatures;
-import net.minecraft.world.gen.placementmodifier.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.util.valueproviders.ClampedInt;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.*;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 
 import java.util.List;
 
@@ -26,27 +25,27 @@ public final class WamPlacedFeatures {
     }
 
     private static List<PlacementModifier> treeModifiers(PlacementModifier countModifier) {
-        return VegetationPlacedFeatures.treeModifiers(countModifier);
+        return VegetationPlacements.treePlacement(countModifier);
     }
 
     private static List<PlacementModifier> countExtraTreeModifiers(int count, float extraChance, int extraCount) {
-        return treeModifiers(PlacedFeatures.createCountExtraModifier(count, extraChance, extraCount));
+        return treeModifiers(PlacementUtils.countExtra(count, extraChance, extraCount));
     }
 
     private static List<PlacementModifier> treeModifiersWithWouldSurvive(PlacementModifier countModifier, Block block) {
-        return VegetationPlacedFeatures.treeModifiersWithWouldSurvive(countModifier, block);
+        return VegetationPlacements.treePlacement(countModifier, block);
     }
 
     private static List<PlacementModifier> countModifiers(int count) {
-        return VegetationPlacedFeatures.modifiers(count);
+        return VegetationPlacements.worldSurfaceSquaredWithCount(count);
     }
 
     private static List<PlacementModifier> chanceModifiers(int chance) {
-        return List.of(RarityFilterPlacementModifier.of(chance), SquarePlacementModifier.of(), PlacedFeatures.WORLD_SURFACE_WG_HEIGHTMAP, BiomePlacementModifier.of());
+        return List.of(RarityFilter.onAverageOnceEvery(chance), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
     }
 
-    private static void registerPineForests(Registerable<PlacedFeature> registerable) {
-        register(registerable, WamPlacedFeatureKeys.FOREST_PINE, WamConfiguredFeatureKeys.PINE, treeModifiersWithWouldSurvive(CountPlacementModifier.of(10), WamBlocks.PINE_SAPLING));
+    private static void registerPineForests(BootstrapContext<PlacedFeature> registerable) {
+        register(registerable, WamPlacedFeatureKeys.FOREST_PINE, WamConfiguredFeatureKeys.PINE, treeModifiersWithWouldSurvive(CountPlacement.of(10), WamBlocks.PINE_SAPLING));
         register(registerable, WamPlacedFeatureKeys.SNOWY_PINE_FOREST_TREES, WamConfiguredFeatureKeys.SNOWY_PINE_FOREST_TREES, countExtraTreeModifiers(8, 0.1f, 1));
         register(registerable, WamPlacedFeatureKeys.OLD_GROWTH_PINE_FOREST_TREES, WamConfiguredFeatureKeys.OLD_GROWTH_PINE_FOREST_TREES, countExtraTreeModifiers(10, 0.1f, 1));
         register(registerable, WamPlacedFeatureKeys.PINE_FOREST_BOULDER, WamConfiguredFeatureKeys.PINE_FOREST_BOULDER, chanceModifiers(16));
@@ -56,28 +55,28 @@ public final class WamPlacedFeatures {
         register(registerable, WamPlacedFeatureKeys.FALLEN_PINE, WamConfiguredFeatureKeys.FALLEN_PINE, chanceModifiers(7));
     }
 
-    private static void registerMires(Registerable<PlacedFeature> registerable) {
-        register(registerable, WamPlacedFeatureKeys.MIRE_PONDS, WamConfiguredFeatureKeys.MIRE_PONDS, List.of(BiomePlacementModifier.of()));
+    private static void registerMires(BootstrapContext<PlacedFeature> registerable) {
+        register(registerable, WamPlacedFeatureKeys.MIRE_PONDS, WamConfiguredFeatureKeys.MIRE_PONDS, List.of(BiomeFilter.biome()));
         register(registerable, WamPlacedFeatureKeys.MIRE_FLOWERS, WamConfiguredFeatureKeys.MIRE_FLOWERS, chanceModifiers(2));
-        register(registerable, WamPlacedFeatureKeys.MIRE_MEADOW, WamConfiguredFeatureKeys.MIRE_MEADOW, List.of(BiomePlacementModifier.of()));
-        register(registerable, WamPlacedFeatureKeys.MIRE_PINE_SNAG, WamConfiguredFeatureKeys.PINE_SNAG, treeModifiersWithWouldSurvive(RarityFilterPlacementModifier.of(6), WamBlocks.PINE_SAPLING));
+        register(registerable, WamPlacedFeatureKeys.MIRE_MEADOW, WamConfiguredFeatureKeys.MIRE_MEADOW, List.of(BiomeFilter.biome()));
+        register(registerable, WamPlacedFeatureKeys.MIRE_PINE_SNAG, WamConfiguredFeatureKeys.PINE_SNAG, treeModifiersWithWouldSurvive(RarityFilter.onAverageOnceEvery(6), WamBlocks.PINE_SAPLING));
         register(registerable, WamPlacedFeatureKeys.MIRE_PINE_SHRUB, WamConfiguredFeatureKeys.SHORT_PINE_SHRUB,
             treeModifiersWithWouldSurvive(
-                PlacedFeatures.createCountExtraModifier(3, 1 / 3f, 3),
+                PlacementUtils.countExtra(3, 1 / 3f, 3),
                 WamBlocks.PINE_SAPLING
             )
         );
     }
 
-    private static void registerFells(Registerable<PlacedFeature> registerable) {
-        register(registerable, WamPlacedFeatureKeys.FELL_VEGETATION, WamConfiguredFeatureKeys.FELL_VEGETATION, List.of(BiomePlacementModifier.of()));
+    private static void registerFells(BootstrapContext<PlacedFeature> registerable) {
+        register(registerable, WamPlacedFeatureKeys.FELL_VEGETATION, WamConfiguredFeatureKeys.FELL_VEGETATION, List.of(BiomeFilter.biome()));
         register(registerable, WamPlacedFeatureKeys.FELL_BOULDER, WamConfiguredFeatureKeys.FELL_BOULDER, chanceModifiers(16));
         register(registerable, WamPlacedFeatureKeys.FELL_POND, WamConfiguredFeatureKeys.FELL_POND, chanceModifiers(7));
         register(registerable, WamPlacedFeatureKeys.FELL_BIRCH_SHRUB, WamConfiguredFeatureKeys.FELL_BIRCH_SHRUB,
             cons(
-                RarityFilterPlacementModifier.of(3),
+                RarityFilter.onAverageOnceEvery(3),
                 treeModifiersWithWouldSurvive(
-                    PlacedFeatures.createCountExtraModifier(1, 1/3f, 2),
+                    PlacementUtils.countExtra(1, 1/3f, 2),
                     Blocks.BIRCH_SAPLING
                 )
             )
@@ -88,21 +87,21 @@ public final class WamPlacedFeatures {
         register(registerable, WamPlacedFeatureKeys.FELL_HEATHER_PATCH, WamConfiguredFeatureKeys.HEATHER_PATCH, chanceModifiers(5));
     }
 
-    private static void registerGroves(Registerable<PlacedFeature> registerable) {
+    private static void registerGroves(BootstrapContext<PlacedFeature> registerable) {
         register(registerable, WamPlacedFeatureKeys.PINY_GROVE_TREES, WamConfiguredFeatureKeys.PINY_GROVE_TREES, countExtraTreeModifiers(10, 0.1f, 1));
     }
 
-    private static void registerVanillaBiomes(Registerable<PlacedFeature> registerable) {
+    private static void registerVanillaBiomes(BootstrapContext<PlacedFeature> registerable) {
         register(registerable, WamPlacedFeatureKeys.PLAINS_FLOWERS, WamConfiguredFeatureKeys.PLAINS_FLOWERS, chanceModifiers(20));
         register(registerable, WamPlacedFeatureKeys.FOREST_TANSY, WamConfiguredFeatureKeys.FOREST_TANSY,
             cons(
-                CountPlacementModifier.of(ClampedIntProvider.create(UniformIntProvider.create(-4, 1), 0, 1)),
+                CountPlacement.of(ClampedInt.of(UniformInt.of(-4, 1), 0, 1)),
                 chanceModifiers(7)
             )
         );
         register(registerable, WamPlacedFeatureKeys.TAIGA_HEATHER_PATCH, WamConfiguredFeatureKeys.HEATHER_PATCH,
             cons(
-                CountPlacementModifier.of(ClampedIntProvider.create(UniformIntProvider.create(-4, 1), 0, 1)),
+                CountPlacement.of(ClampedInt.of(UniformInt.of(-4, 1), 0, 1)),
                 chanceModifiers(7)
             )
         );
@@ -111,7 +110,7 @@ public final class WamPlacedFeatures {
     private WamPlacedFeatures() {
     }
 
-    public static void register(Registerable<PlacedFeature> registerable) {
+    public static void register(BootstrapContext<PlacedFeature> registerable) {
         registerPineForests(registerable);
         registerMires(registerable);
         registerFells(registerable);
@@ -119,9 +118,9 @@ public final class WamPlacedFeatures {
         registerVanillaBiomes(registerable);
     }
 
-    private static void register(Registerable<PlacedFeature> registerable, RegistryKey<PlacedFeature> key,
-                                 RegistryKey<ConfiguredFeature<?, ?>> feature, List<PlacementModifier> modifiers) {
-        RegistryEntryLookup<ConfiguredFeature<?, ?>> lookup = registerable.getRegistryLookup(RegistryKeys.CONFIGURED_FEATURE);
+    private static void register(BootstrapContext<PlacedFeature> registerable, ResourceKey<PlacedFeature> key,
+                                 ResourceKey<ConfiguredFeature<?, ?>> feature, List<PlacementModifier> modifiers) {
+        HolderGetter<ConfiguredFeature<?, ?>> lookup = registerable.lookup(Registries.CONFIGURED_FEATURE);
         PlacedFeature placed = new PlacedFeature(lookup.getOrThrow(feature), modifiers);
         registerable.register(key, placed);
     }

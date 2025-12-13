@@ -2,14 +2,14 @@ package juuxel.woodsandmires.feature;
 
 import com.mojang.serialization.Codec;
 import juuxel.woodsandmires.block.AgedLogBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PillarBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.TestableWorld;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelSimulatedReader;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,68 +20,68 @@ public class FallenLogFeature extends Feature<FallenLogFeatureConfig> {
     }
 
     @Override
-    public boolean generate(FeatureContext<FallenLogFeatureConfig> context) {
-        BlockPos.Mutable mut = context.getOrigin().mutableCopy();
-        if (!canPlace(context.getWorld(), mut)) {
+    public boolean place(FeaturePlaceContext<FallenLogFeatureConfig> context) {
+        BlockPos.MutableBlockPos mut = context.origin().mutable();
+        if (!canPlace(context.level(), mut)) {
             return false;
         }
 
-        var config = context.getConfig();
-        var random = context.getRandom();
-        Direction.Axis axis = Direction.Type.HORIZONTAL.randomAxis(random);
+        var config = context.config();
+        var random = context.random();
+        Direction.Axis axis = Direction.Plane.HORIZONTAL.getRandomAxis(random);
         // We need to correct it so that the "mid" texture will align correctly.
         Direction direction = axis == Direction.Axis.X ? Direction.WEST : Direction.SOUTH;
-        int length = config.length().get(random);
-        int mid = (int) (config.agedHeightFraction().get(random) * length);
-        List<BlockPos.Mutable> trunkPositions = new ArrayList<>();
+        int length = config.length().sample(random);
+        int mid = (int) (config.agedHeightFraction().sample(random) * length);
+        List<BlockPos.MutableBlockPos> trunkPositions = new ArrayList<>();
 
         if (random.nextInt(5) == 0) {
             for (int i = 0; i < length; i++) {
-                if (!canPlace(context.getWorld(), mut)) {
+                if (!canPlace(context.level(), mut)) {
                     break;
                 }
 
                 Block block = i < mid ? config.mainLog() : config.agedLog();
-                BlockState state = block.getDefaultState().with(PillarBlock.AXIS, axis);
+                BlockState state = block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, axis);
 
                 if (i == mid) {
-                    state = state.with(AgedLogBlock.MID, true);
+                    state = state.setValue(AgedLogBlock.MID, true);
                 }
 
-                setBlockState(context.getWorld(), mut, state);
-                trunkPositions.add(mut.mutableCopy());
+                setBlock(context.level(), mut, state);
+                trunkPositions.add(mut.mutable());
                 mut.move(direction);
             }
         } else {
             Block block = random.nextBoolean() ? config.mainLog() : config.agedLog();
-            BlockState state = block.getDefaultState().with(PillarBlock.AXIS, axis);
+            BlockState state = block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, axis);
 
             for (int i = 0; i < length; i++) {
-                if (!canPlace(context.getWorld(), mut)) {
+                if (!canPlace(context.level(), mut)) {
                     break;
                 }
 
-                setBlockState(context.getWorld(), mut, state);
-                trunkPositions.add(mut.mutableCopy());
+                setBlock(context.level(), mut, state);
+                trunkPositions.add(mut.mutable());
                 mut.move(direction);
             }
         }
 
-        for (BlockPos.Mutable pos : trunkPositions) {
+        for (BlockPos.MutableBlockPos pos : trunkPositions) {
             pos.move(Direction.UP);
-            BlockState state = config.topDecoration().get(random, pos);
-            if (!state.isAir() && state.canPlaceAt(context.getWorld(), pos)) {
-                setBlockState(context.getWorld(), pos, state);
+            BlockState state = config.topDecoration().getState(random, pos);
+            if (!state.isAir() && state.canSurvive(context.level(), pos)) {
+                setBlock(context.level(), pos, state);
             }
         }
 
         return true;
     }
 
-    private static boolean canPlace(TestableWorld world, BlockPos.Mutable mut) {
-        if (!world.testBlockState(mut, BlockState::isAir)) return false;
+    private static boolean canPlace(LevelSimulatedReader world, BlockPos.MutableBlockPos mut) {
+        if (!world.isStateAtPosition(mut, BlockState::isAir)) return false;
         mut.move(0, -1, 0);
-        boolean result = isSoil(world, mut);
+        boolean result = isGrassOrDirt(world, mut);
         mut.move(0, 1, 0);
         return result;
     }

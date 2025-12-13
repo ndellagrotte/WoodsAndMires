@@ -4,50 +4,50 @@ import juuxel.woodsandmires.data.builtin.WamConfiguredFeatures;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.context.LootContextTypes;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.loot.entry.TagEntry;
-import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
-import net.minecraft.loot.provider.number.UniformLootNumberProvider;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.TagEntry;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.HolderLookup;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 public final class WamChestLootTableProvider extends SimpleFabricLootTableProvider {
-    public WamChestLootTableProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
-        super(output, registryLookup, LootContextTypes.CHEST);
+    public WamChestLootTableProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
+        super(output, registryLookup, LootContextParamSets.CHEST);
     }
 
 
     @Override
-    public void accept(BiConsumer<RegistryKey<LootTable>, LootTable.Builder> sink) {
+    public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> sink) {
         sink.accept(WamConfiguredFeatures.FROZEN_TREASURE_LOOT_TABLE,
             new LootTable.Builder()
-                .pool(
-                    LootPool.builder()
-                        .rolls(UniformLootNumberProvider.create(2, 4))
-                        .with(TagEntry.expandBuilder(ConventionalItemTags.IRON_INGOTS))
-                        .with(TagEntry.expandBuilder(ConventionalItemTags.GOLD_INGOTS))
-                        .with(TagEntry.expandBuilder(ConventionalItemTags.COPPER_INGOTS))
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(UniformGenerator.between(2, 4))
+                        .add(TagEntry.expandTag(ConventionalItemTags.IRON_INGOTS))
+                        .add(TagEntry.expandTag(ConventionalItemTags.GOLD_INGOTS))
+                        .add(TagEntry.expandTag(ConventionalItemTags.COPPER_INGOTS))
                 )
-                .pool(
-                    LootPool.builder()
-                        .rolls(UniformLootNumberProvider.create(1, 2))
-                        .with(TagEntry.expandBuilder(ConventionalItemTags.EMERALDS))
-                        .with(ItemEntry.builder(Items.NAME_TAG))
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(UniformGenerator.between(1, 2))
+                        .add(TagEntry.expandTag(ConventionalItemTags.EMERALDS))
+                        .add(LootItem.lootTableItem(Items.NAME_TAG))
                 )
-                .pool(
-                    LootPool.builder()
-                        .rolls(ConstantLootNumberProvider.create(4))
-                        .with(ItemEntry.builder(Items.STRING))
-                        .with(ItemEntry.builder(Items.SPIDER_EYE))
-                        .with(ItemEntry.builder(Items.ROTTEN_FLESH))
-                        .with(ItemEntry.builder(Items.BONE))
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(4))
+                        .add(LootItem.lootTableItem(Items.STRING))
+                        .add(LootItem.lootTableItem(Items.SPIDER_EYE))
+                        .add(LootItem.lootTableItem(Items.ROTTEN_FLESH))
+                        .add(LootItem.lootTableItem(Items.BONE))
                 )
         );
     }

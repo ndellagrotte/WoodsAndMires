@@ -2,10 +2,10 @@ package juuxel.woodsandmires.feature;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.gen.feature.FeatureConfig;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
-public final class ShrubFeatureConfig implements FeatureConfig {
+public final class ShrubFeatureConfig implements FeatureConfiguration {
     public static final Codec<ShrubFeatureConfig> CODEC = RecordCodecBuilder.create(
         instance -> instance.group(
             BlockState.CODEC.fieldOf("log").forGetter(ShrubFeatureConfig::getLog),

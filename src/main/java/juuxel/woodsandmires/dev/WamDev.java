@@ -11,19 +11,19 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.command.permission.PermissionCheck;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.server.permissions.PermissionCheck;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 
 public final class WamDev {
     private static final Gson GSON = new Gson();
@@ -43,18 +43,18 @@ public final class WamDev {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(literal("wam")
-                .then(literal("mark").requires(CommandManager.requirePermissionLevel(CommandManager.OWNERS_CHECK)).executes(WamDev::mark))
-                .then(literal("recall").requires(CommandManager.requirePermissionLevel(CommandManager.OWNERS_CHECK)).executes(WamDev::recall)));
+                .then(literal("mark").requires(Commands.hasPermission(Commands.LEVEL_OWNERS)).executes(WamDev::mark))
+                .then(literal("recall").requires(Commands.hasPermission(Commands.LEVEL_OWNERS)).executes(WamDev::recall)));
         });
     }
 
-    private static int mark(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int mark(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try {
-            BlockPos pos = context.getSource().getPlayer().getBlockPos();
+            BlockPos pos = context.getSource().getPlayer().blockPosition();
             JsonElement json = BlockPos.CODEC.encodeStart(JsonOps.INSTANCE, pos)
                 .getOrThrow();
             Files.writeString(marked, GSON.toJson(json));
-            context.getSource().sendFeedback(() -> Text.literal("Marked " + pos.toShortString()).formatted(Formatting.GREEN), false);
+            context.getSource().sendSuccess(() -> Component.literal("Marked " + pos.toShortString()).withStyle(ChatFormatting.GREEN), false);
         } catch (Exception e) {
             throw EXCEPTION_COMMAND.create(e);
         }
@@ -62,7 +62,7 @@ public final class WamDev {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int recall(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int recall(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try {
             if (Files.notExists(marked)) {
                 throw NO_MARKED_POSITION.create();
@@ -72,8 +72,8 @@ public final class WamDev {
             BlockPos pos = BlockPos.CODEC.decode(JsonOps.INSTANCE, json)
                 .getOrThrow()
                 .getFirst();
-            context.getSource().sendFeedback(() -> Text.literal("Recalling " + pos.toShortString()).formatted(Formatting.GREEN), false);
-            context.getSource().getPlayer().teleport(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, true);
+            context.getSource().sendSuccess(() -> Component.literal("Recalling " + pos.toShortString()).withStyle(ChatFormatting.GREEN), false);
+            context.getSource().getPlayer().randomTeleport(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, true);
         } catch (CommandSyntaxException e) {
             throw e;
         } catch (Exception e) {

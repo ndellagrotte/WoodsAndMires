@@ -1,12 +1,12 @@
 accessWidener v1 named
 
 # World gen
-accessible field net/minecraft/world/biome/OverworldBiomeCreator DEFAULT_WATER_COLOR I
-accessible method net/minecraft/world/biome/OverworldBiomeCreator getSkyColor (F)I
-accessible method net/minecraft/world/biome/OverworldBiomeCreator addBasicFeatures (Lnet/minecraft/world/biome/GenerationSettings$LookupBackedBuilder;)V
-accessible method net/minecraft/world/gen/surfacebuilder/VanillaSurfaceRules surfaceNoiseThreshold (D)Lnet/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialCondition;
-accessible method net/minecraft/world/gen/surfacebuilder/VanillaSurfaceRules block (Lnet/minecraft/block/Block;)Lnet/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialRule;
-accessible method net/minecraft/world/gen/feature/VegetationConfiguredFeatures createRandomPatchFeatureConfig (Lnet/minecraft/world/gen/stateprovider/BlockStateProvider;I)Lnet/minecraft/world/gen/feature/RandomPatchFeatureConfig;
+accessible field net/minecraft/data/worldgen/biome/OverworldBiomes NORMAL_WATER_COLOR I
+accessible method net/minecraft/data/worldgen/biome/OverworldBiomes calculateSkyColor (F)I
+accessible method net/minecraft/data/worldgen/biome/OverworldBiomes globalOverworldGeneration (Lnet/minecraft/world/level/biome/BiomeGenerationSettings$Builder;)V
+accessible method net/minecraft/data/worldgen/SurfaceRuleData surfaceNoiseAbove (D)Lnet/minecraft/world/level/levelgen/SurfaceRules$ConditionSource;
+accessible method net/minecraft/data/worldgen/SurfaceRuleData makeStateRule (Lnet/minecraft/world/level/block/Block;)Lnet/minecraft/world/level/levelgen/SurfaceRules$RuleSource;
+accessible method net/minecraft/data/worldgen/features/VegetationFeatures grassPatch (Lnet/minecraft/world/level/levelgen/feature/stateproviders/BlockStateProvider;I)Lnet/minecraft/world/level/levelgen/feature/configurations/RandomPatchConfiguration;
 
 # Data generation
-accessible field net/minecraft/world/biome/GenerationSettings$Builder indexedFeaturesList Ljava/util/List;
+accessible field net/minecraft/world/level/biome/BiomeGenerationSettings$PlainBuilder features Ljava/util/List;

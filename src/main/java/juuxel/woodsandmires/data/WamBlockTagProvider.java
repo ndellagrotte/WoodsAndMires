@@ -4,21 +4,21 @@ import juuxel.woodsandmires.block.WamBlockTags;
 import juuxel.woodsandmires.block.WamBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BlockTags;
 
 import java.util.concurrent.CompletableFuture;
 
 public final class WamBlockTagProvider extends FabricTagProvider.BlockTagProvider {
-    public WamBlockTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public WamBlockTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup arg) {
+    protected void addTags(HolderLookup.Provider arg) {
         // Minecraft tags
-        valueLookupBuilder(BlockTags.AXE_MINEABLE)
+        valueLookupBuilder(BlockTags.MINEABLE_WITH_AXE)
             .add(WamBlocks.PINE_SNAG_BRANCH);
         valueLookupBuilder(BlockTags.CEILING_HANGING_SIGNS)
             .add(WamBlocks.PINE_HANGING_SIGN);

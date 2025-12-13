@@ -1,25 +1,25 @@
 package juuxel.woodsandmires.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowerBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.core.Holder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
 
 public class HeatherBlock extends FlowerBlock {
-    private static final VoxelShape SHAPE = createCuboidShape(1, 0, 1, 15, 11, 15);
+    private static final VoxelShape SHAPE = box(1, 0, 1, 15, 11, 15);
 
-    public HeatherBlock(RegistryEntry<StatusEffect> suspiciousStewEffect, int effectDuration, Settings settings) {
+    public HeatherBlock(Holder<MobEffect> suspiciousStewEffect, int effectDuration, Properties settings) {
         super(suspiciousStewEffect, effectDuration, settings);
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        Vec3d modelOffset = state.getModelOffset(pos);
-        return SHAPE.offset(modelOffset.x, modelOffset.y, modelOffset.z);
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        Vec3 modelOffset = state.getOffset(pos);
+        return SHAPE.move(modelOffset.x, modelOffset.y, modelOffset.z);
     }
 }

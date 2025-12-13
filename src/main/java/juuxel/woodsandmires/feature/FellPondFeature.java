@@ -1,14 +1,14 @@
 package juuxel.woodsandmires.feature;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 import java.util.HashSet;
 import java.util.List;
@@ -23,22 +23,22 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
     }
 
     @Override
-    public boolean generate(FeatureContext<FellPondFeatureConfig> context) {
-        FellPondFeatureConfig config = context.getConfig();
-        BlockPos.Mutable origin = context.getOrigin().mutableCopy().move(0, -1, 0);
+    public boolean place(FeaturePlaceContext<FellPondFeatureConfig> context) {
+        FellPondFeatureConfig config = context.config();
+        BlockPos.MutableBlockPos origin = context.origin().mutable().move(0, -1, 0);
 
         // Don't generate in water.
-        if (!context.getWorld().getFluidState(origin).isEmpty()) {
+        if (!context.level().getFluidState(origin).isEmpty()) {
             return false;
         }
 
-        var random = context.getRandom();
-        int depth = config.depth().get(random);
-        int semiMajor = config.radius().get(random);
-        int semiMinor = config.radius().get(random);
-        BlockPos.Mutable mut = new BlockPos.Mutable();
+        var random = context.random();
+        int depth = config.depth().sample(random);
+        int semiMajor = config.radius().sample(random);
+        int semiMinor = config.radius().sample(random);
+        BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
         Set<BlockPos> filledPositions = new HashSet<>();
-        float theta = random.nextFloat() * MathHelper.TAU;
+        float theta = random.nextFloat() * Mth.TWO_PI;
 
         int dugHeight = 0;
         // Check for air layers
@@ -50,7 +50,7 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
 
             outer: for (int x = -semiMajor; x <= semiMajor; x++) {
                 for (int z = -semiMinor; z <= semiMinor; z++) {
-                    if (isInsideEllipse(x, z, semiMajorSq, semiMinorSq, theta) && context.getWorld().isAir(mut.set(origin).move(x, 0, z))) {
+                    if (isInsideEllipse(x, z, semiMajorSq, semiMinorSq, theta) && context.level().isEmptyBlock(mut.set(origin).move(x, 0, z))) {
                         foundAir = true;
                         break outer;
                     }
@@ -61,7 +61,7 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
                 for (int x = -semiMajor; x <= semiMajor; x++) {
                     for (int z = -semiMinor; z <= semiMinor; z++) {
                         if (isInsideEllipse(x, z, semiMajorSq, semiMinorSq, theta)) {
-                            setBlockState(context.getWorld(), mut.set(origin).move(x, 0, z), Blocks.AIR.getDefaultState());
+                            setBlock(context.level(), mut.set(origin).move(x, 0, z), Blocks.AIR.defaultBlockState());
                         }
                     }
                 }
@@ -84,14 +84,14 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
                 for (int z = -semiMinor; z <= semiMinor; z++) {
                     if (isInsideEllipse(x, z, semiMajorSq, semiMinorSq, theta)) {
                         mut.set(origin.getX() + x, origin.getY() - yo, origin.getZ() + z);
-                        setBlockState(context.getWorld(), mut, config.fillBlock().get(random, mut));
+                        setBlock(context.level(), mut, config.fillBlock().getState(random, mut));
                         filledPositions.add(new BlockPos(mut));
 
                         for (Direction d : BORDER_DIRECTIONS) {
                             mut.move(d);
 
-                            if (!filledPositions.contains(mut) && shouldPlaceBorder(context.getWorld(), mut)) {
-                                setBlockState(context.getWorld(), mut, config.border().get(random, mut));
+                            if (!filledPositions.contains(mut) && shouldPlaceBorder(context.level(), mut)) {
+                                setBlock(context.level(), mut, config.border().getState(random, mut));
                             }
 
                             mut.move(d.getOpposite());
@@ -99,7 +99,7 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
 
                         if (random.nextFloat() < config.bottomReplaceChance()) {
                             mut.move(0, -1, 0);
-                            setBlockState(context.getWorld(), mut, config.bottomBlock().get(random, mut));
+                            setBlock(context.level(), mut, config.bottomBlock().getState(random, mut));
                         }
                     }
                 }
@@ -113,8 +113,8 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
     }
 
     static boolean isInsideEllipse(int x, int y, float semiMajorSq, float semiMinorSq, float theta) {
-        float sin = MathHelper.sin(theta);
-        float cos = MathHelper.cos(theta);
+        float sin = Mth.sin(theta);
+        float cos = Mth.cos(theta);
         float sinSq = sin * sin;
         float cosSq = cos * cos;
 
@@ -129,8 +129,8 @@ public final class FellPondFeature extends Feature<FellPondFeatureConfig> {
         return (a * x * x) + (b * x * y) + (c * y * y) + f <= 0;
     }
 
-    private static boolean shouldPlaceBorder(StructureWorldAccess world, BlockPos pos) {
+    private static boolean shouldPlaceBorder(WorldGenLevel world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        return state.isAir() || !state.isFullCube(world, pos);
+        return state.isAir() || !state.isCollisionShapeFullBlock(world, pos);
     }
 }

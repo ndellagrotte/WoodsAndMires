@@ -1,22 +1,22 @@
 package juuxel.woodsandmires.feature;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.inventory.LootableInventory;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.RandomizableContainer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 public final class FrozenTreasureFeature extends Feature<FrozenTreasureFeatureConfig> {
     public FrozenTreasureFeature(Codec<FrozenTreasureFeatureConfig> configCodec) {
@@ -24,28 +24,28 @@ public final class FrozenTreasureFeature extends Feature<FrozenTreasureFeatureCo
     }
 
     @Override
-    public boolean generate(FeatureContext<FrozenTreasureFeatureConfig> context) {
-        FrozenTreasureFeatureConfig config = context.getConfig();
-        StructureWorldAccess world = context.getWorld();
-        BlockPos origin = context.getOrigin();
-        var random = context.getRandom();
-        int height = config.height().get(random);
-        int semiMajor = config.radius().get(random);
-        int semiMinor = config.radius().get(random);
-        BlockPos.Mutable mut = new BlockPos.Mutable();
+    public boolean place(FeaturePlaceContext<FrozenTreasureFeatureConfig> context) {
+        FrozenTreasureFeatureConfig config = context.config();
+        WorldGenLevel world = context.level();
+        BlockPos origin = context.origin();
+        var random = context.random();
+        int height = config.height().sample(random);
+        int semiMajor = config.radius().sample(random);
+        int semiMinor = config.radius().sample(random);
+        BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
         int chestY = height / 3;
 
         for (int x = -semiMajor; x <= semiMajor; x++) {
             for (int z = -semiMinor; z <= semiMinor; z++) {
                 mut.set(origin.getX() + x, origin.getY() - 1, origin.getZ() + z);
-                if (!hasSolidTop(world, mut) || !world.testFluidState(mut, FluidState::isEmpty)) {
+                if (!hasSolidTop(world, mut) || !world.isFluidAtPosition(mut, FluidState::isEmpty)) {
                     return false;
                 }
             }
         }
 
         for (int yo = -1; yo < height; yo++) {
-            float width = getWidthAdjustmentFromProgress(MathHelper.getLerpProgress(yo, -1f, height - 1f));
+            float width = getWidthAdjustmentFromProgress(Mth.inverseLerp(yo, -1f, height - 1f));
             int sma = Math.round(semiMajor * width);
             int smi = Math.round(semiMinor * width);
             float semiMajorSq = sma * sma;
@@ -55,12 +55,12 @@ public final class FrozenTreasureFeature extends Feature<FrozenTreasureFeatureCo
                 for (int z = -smi; z <= smi; z++) {
                     mut.set(origin.getX() + x, origin.getY() + yo, origin.getZ() + z);
                     if (x == 0 && z == 0 && yo == chestY) {
-                        BlockState chest = Blocks.CHEST.getDefaultState()
-                            .with(ChestBlock.FACING, Direction.Type.HORIZONTAL.random(random));
-                        setBlockState(world, mut, chest);
-                        LootableInventory.setLootTable(world, random, mut, config.lootTable());
+                        BlockState chest = Blocks.CHEST.defaultBlockState()
+                            .setValue(ChestBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random));
+                        setBlock(world, mut, chest);
+                        RandomizableContainer.setBlockEntityLootTable(world, random, mut, config.lootTable());
                     } else if (FellPondFeature.isInsideEllipse(x, z, semiMajorSq, semiMinorSq, 0)) {
-                        setBlockState(world, mut, config.ice().get(random, mut));
+                        setBlock(world, mut, config.ice().getState(random, mut));
                     }
                 }
             }
@@ -74,10 +74,10 @@ public final class FrozenTreasureFeature extends Feature<FrozenTreasureFeatureCo
         return coefficient * (progress - 0.6f) + 1f;
     }
 
-    private static boolean hasSolidTop(StructureWorldAccess world, BlockPos pos) {
-        return world.testBlockState(pos, state -> {
+    private static boolean hasSolidTop(WorldGenLevel world, BlockPos pos) {
+        return world.isStateAtPosition(pos, state -> {
             VoxelShape shape = state.getCollisionShape(world, pos);
-            return Block.isFaceFullSquare(shape, Direction.UP);
+            return Block.isFaceFull(shape, Direction.UP);
         });
     }
 }

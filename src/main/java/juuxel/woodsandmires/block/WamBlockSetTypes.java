@@ -2,7 +2,7 @@ package juuxel.woodsandmires.block;
 
 import juuxel.woodsandmires.WoodsAndMires;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
-import net.minecraft.block.BlockSetType;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 
 public final class WamBlockSetTypes {
     public static final BlockSetType PINE = registerWood("pine");

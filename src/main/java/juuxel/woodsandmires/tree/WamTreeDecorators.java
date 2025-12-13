@@ -1,9 +1,9 @@
 package juuxel.woodsandmires.tree;
 
 import juuxel.woodsandmires.WoodsAndMires;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 
 public final class WamTreeDecorators {
     public static final TreeDecoratorType<BranchTreeDecorator> BRANCH = new TreeDecoratorType<>(BranchTreeDecorator.CODEC);
@@ -21,6 +21,6 @@ public final class WamTreeDecorators {
     }
 
     private static void register(String id, TreeDecoratorType<?> type) {
-        Registry.register(Registries.TREE_DECORATOR_TYPE, WoodsAndMires.id(id), type);
+        Registry.register(BuiltInRegistries.TREE_DECORATOR_TYPE, WoodsAndMires.id(id), type);
     }
 }

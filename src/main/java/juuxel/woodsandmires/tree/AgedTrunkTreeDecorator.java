@@ -6,21 +6,21 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import juuxel.woodsandmires.block.AgedLogBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.floatprovider.FloatProvider;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.treedecorator.TreeDecorator;
-import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.util.valueproviders.FloatProvider;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 
 public final class AgedTrunkTreeDecorator extends TreeDecorator {
     public static final MapCodec<AgedTrunkTreeDecorator> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
-            Registries.BLOCK.getCodec().fieldOf("log").forGetter(AgedTrunkTreeDecorator::getLog),
-            FloatProvider.createValidatedCodec(0, 1).fieldOf("aged_height_fraction")
+            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("log").forGetter(AgedTrunkTreeDecorator::getLog),
+            FloatProvider.codec(0, 1).fieldOf("aged_height_fraction")
                 .forGetter(AgedTrunkTreeDecorator::getAgedHeightFraction)
         ).apply(instance, AgedTrunkTreeDecorator::new)
     );
@@ -41,29 +41,29 @@ public final class AgedTrunkTreeDecorator extends TreeDecorator {
     }
 
     @Override
-    protected TreeDecoratorType<?> getType() {
+    protected TreeDecoratorType<?> type() {
         return WamTreeDecorators.AGED_TRUNK;
     }
 
     @Override
-    public void generate(Generator generator) {
+    public void place(Context generator) {
         IntSortedSet heights = new IntRBTreeSet();
-        for (BlockPos pos : generator.getLogPositions()) {
+        for (BlockPos pos : generator.logs()) {
             heights.add(pos.getY());
         }
-        float heightPoint = agedHeightFraction.get(generator.getRandom());
-        int midY = (int) MathHelper.lerp(heightPoint, heights.firstInt(), heights.lastInt());
+        float heightPoint = agedHeightFraction.sample(generator.random());
+        int midY = (int) Mth.lerpInt(heightPoint, heights.firstInt(), heights.lastInt());
 
-        for (BlockPos pos : generator.getLogPositions()) {
+        for (BlockPos pos : generator.logs()) {
             if (pos.getY() > midY) {
                 break;
-            } else if (generator.getWorld().testBlockState(pos, Feature::isSoil)) {
+            } else if (generator.level().isStateAtPosition(pos, Feature::isDirt)) {
                 // Don't replace the dirt underneath the trunk
                 continue;
             }
 
-            BlockState state = log.getDefaultState().with(AgedLogBlock.MID, pos.getY() == midY);
-            generator.replace(pos, state);
+            BlockState state = log.defaultBlockState().setValue(AgedLogBlock.MID, pos.getY() == midY);
+            generator.setBlock(pos, state);
         }
     }
 }

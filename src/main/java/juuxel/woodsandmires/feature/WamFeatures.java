@@ -1,14 +1,14 @@
 package juuxel.woodsandmires.feature;
 
 import juuxel.woodsandmires.WoodsAndMires;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.Feature;
 
 public final class WamFeatures {
     public static final Feature<ShrubFeatureConfig> SHRUB = new ShrubFeature(ShrubFeatureConfig.CODEC);
-    public static final Feature<DefaultFeatureConfig> MIRE_PONDS = new MirePondsFeature(DefaultFeatureConfig.CODEC);
+    public static final Feature<NoneFeatureConfiguration> MIRE_PONDS = new MirePondsFeature(NoneFeatureConfiguration.CODEC);
     public static final Feature<MeadowFeatureConfig> MEADOW = new MeadowFeature(MeadowFeatureConfig.CODEC);
     public static final Feature<FellPondFeatureConfig> FELL_POND = new FellPondFeature(FellPondFeatureConfig.CODEC);
     public static final Feature<FallenLogFeatureConfig> FALLEN_LOG = new FallenLogFeature(FallenLogFeatureConfig.CODEC);
@@ -27,6 +27,6 @@ public final class WamFeatures {
     }
 
     private static void register(String id, Feature<?> feature) {
-        Registry.register(Registries.FEATURE, WoodsAndMires.id(id), feature);
+        Registry.register(BuiltInRegistries.FEATURE, WoodsAndMires.id(id), feature);
     }
 }

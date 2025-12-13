@@ -4,20 +4,20 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import juuxel.woodsandmires.block.BranchBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.treedecorator.TreeDecorator;
-import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 
 public final class BranchTreeDecorator extends TreeDecorator {
     public static final MapCodec<BranchTreeDecorator> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
-            Registries.BLOCK.getCodec().fieldOf("block").forGetter(BranchTreeDecorator::getBlock),
+            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(BranchTreeDecorator::getBlock),
             Codec.FLOAT.fieldOf("chance").forGetter(BranchTreeDecorator::getChance)
         ).apply(instance, BranchTreeDecorator::new)
     );
@@ -31,7 +31,7 @@ public final class BranchTreeDecorator extends TreeDecorator {
     }
 
     @Override
-    protected TreeDecoratorType<?> getType() {
+    protected TreeDecoratorType<?> type() {
         return WamTreeDecorators.BRANCH;
     }
 
@@ -44,25 +44,25 @@ public final class BranchTreeDecorator extends TreeDecorator {
     }
 
     @Override
-    public void generate(Generator generator) {
-        BlockPos.Mutable mut = new BlockPos.Mutable();
-        Random random = generator.getRandom();
+    public void place(Context generator) {
+        BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
+        RandomSource random = generator.random();
 
-        for (BlockPos pos : generator.getLogPositions()) {
+        for (BlockPos pos : generator.logs()) {
             // Don't replace the dirt underneath the trunk
-            if (generator.getWorld().testBlockState(pos, Feature::isSoil)) continue;
+            if (generator.level().isStateAtPosition(pos, Feature::isDirt)) continue;
 
             mut.set(pos);
 
-            for (Direction side : Direction.Type.HORIZONTAL) {
+            for (Direction side : Direction.Plane.HORIZONTAL) {
                 if (random.nextFloat() < chance) {
-                    BlockState state = block.getDefaultState()
-                        .with(BranchBlock.AXIS, side.getAxis())
-                        .with(BranchBlock.STYLE, random.nextBoolean() ? BranchBlock.Style.THICK : BranchBlock.Style.THIN);
+                    BlockState state = block.defaultBlockState()
+                        .setValue(BranchBlock.AXIS, side.getAxis())
+                        .setValue(BranchBlock.STYLE, random.nextBoolean() ? BranchBlock.Style.THICK : BranchBlock.Style.THIN);
 
                     mut.move(side);
                     if (generator.isAir(mut)) {
-                        generator.replace(mut, state);
+                        generator.setBlock(mut, state);
                     }
                     mut.move(side.getOpposite());
                 }

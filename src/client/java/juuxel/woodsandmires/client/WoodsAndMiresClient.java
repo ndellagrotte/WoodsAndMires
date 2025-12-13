@@ -5,7 +5,7 @@ import juuxel.woodsandmires.WoodsAndMires;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
 public final class WoodsAndMiresClient implements ClientModInitializer {
@@ -13,6 +13,6 @@ public final class WoodsAndMiresClient implements ClientModInitializer {
     public void onInitializeClient() {
         WamBlocksClient.init();
 
-        TerraformBoatClientHelper.registerModelLayers(Identifier.of(WoodsAndMires.ID, "pine"));
+        TerraformBoatClientHelper.registerModelLayers(Identifier.fromNamespaceAndPath(WoodsAndMires.ID, "pine"));
     }
 }

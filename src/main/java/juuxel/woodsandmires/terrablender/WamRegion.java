@@ -2,12 +2,12 @@ package juuxel.woodsandmires.terrablender;
 
 import com.mojang.datafixers.util.Pair;
 import juuxel.woodsandmires.biome.WamBiomeKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.source.util.MultiNoiseUtil;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.Climate;
 import terrablender.api.Region;
 import terrablender.api.RegionType;
 
@@ -19,21 +19,21 @@ public class WamRegion extends Region {
     }
 
     @Override
-    public void addBiomes(Registry<Biome> registry, Consumer<Pair<MultiNoiseUtil.NoiseHypercube, RegistryKey<Biome>>> mapper) {
+    public void addBiomes(Registry<Biome> registry, Consumer<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> mapper) {
         addModifiedVanillaOverworldBiomes(mapper, builder -> {
-            builder.replaceBiome(BiomeKeys.SWAMP, WamBiomeKeys.PINE_MIRE);
-            builder.replaceBiome(BiomeKeys.TAIGA, WamBiomeKeys.PINE_FOREST);
-            builder.replaceBiome(BiomeKeys.FOREST, WamBiomeKeys.LUSH_PINE_FOREST);
-            builder.replaceBiome(BiomeKeys.OLD_GROWTH_PINE_TAIGA, WamBiomeKeys.OLD_GROWTH_PINE_FOREST);
-            builder.replaceBiome(BiomeKeys.OLD_GROWTH_SPRUCE_TAIGA, WamBiomeKeys.OLD_GROWTH_PINE_FOREST);
-            builder.replaceBiome(BiomeKeys.SNOWY_TAIGA, WamBiomeKeys.SNOWY_PINE_FOREST);
+            builder.replaceBiome(Biomes.SWAMP, WamBiomeKeys.PINE_MIRE);
+            builder.replaceBiome(Biomes.TAIGA, WamBiomeKeys.PINE_FOREST);
+            builder.replaceBiome(Biomes.FOREST, WamBiomeKeys.LUSH_PINE_FOREST);
+            builder.replaceBiome(Biomes.OLD_GROWTH_PINE_TAIGA, WamBiomeKeys.OLD_GROWTH_PINE_FOREST);
+            builder.replaceBiome(Biomes.OLD_GROWTH_SPRUCE_TAIGA, WamBiomeKeys.OLD_GROWTH_PINE_FOREST);
+            builder.replaceBiome(Biomes.SNOWY_TAIGA, WamBiomeKeys.SNOWY_PINE_FOREST);
             // TODO: Windswept pine forest?
-            builder.replaceBiome(BiomeKeys.WINDSWEPT_FOREST, WamBiomeKeys.SNOWY_PINE_FOREST);
-            builder.replaceBiome(BiomeKeys.WINDSWEPT_GRAVELLY_HILLS, WamBiomeKeys.FELL);
-            builder.replaceBiome(BiomeKeys.WINDSWEPT_HILLS, WamBiomeKeys.FELL);
-            builder.replaceBiome(BiomeKeys.SNOWY_SLOPES, WamBiomeKeys.SNOWY_PINE_FOREST);
-            builder.replaceBiome(BiomeKeys.FROZEN_PEAKS, WamBiomeKeys.SNOWY_FELL);
-            builder.replaceBiome(BiomeKeys.GROVE, WamBiomeKeys.PINY_GROVE);
+            builder.replaceBiome(Biomes.WINDSWEPT_FOREST, WamBiomeKeys.SNOWY_PINE_FOREST);
+            builder.replaceBiome(Biomes.WINDSWEPT_GRAVELLY_HILLS, WamBiomeKeys.FELL);
+            builder.replaceBiome(Biomes.WINDSWEPT_HILLS, WamBiomeKeys.FELL);
+            builder.replaceBiome(Biomes.SNOWY_SLOPES, WamBiomeKeys.SNOWY_PINE_FOREST);
+            builder.replaceBiome(Biomes.FROZEN_PEAKS, WamBiomeKeys.SNOWY_FELL);
+            builder.replaceBiome(Biomes.GROVE, WamBiomeKeys.PINY_GROVE);
         });
     }
 }

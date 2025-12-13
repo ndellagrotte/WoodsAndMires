@@ -1,22 +1,22 @@
 package juuxel.woodsandmires.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PillarBlock;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.core.Direction;
 
-public class AgedLogBlock extends PillarBlock {
-    public static final BooleanProperty MID = BooleanProperty.of("mid");
-    public AgedLogBlock(Block main, Settings settings) {
-        super(settings.overrideTranslationKey(main.getTranslationKey()));
-        setDefaultState(getDefaultState().with(MID, false));
+public class AgedLogBlock extends RotatedPillarBlock {
+    public static final BooleanProperty MID = BooleanProperty.create("mid");
+    public AgedLogBlock(Block main, Properties settings) {
+        super(settings.overrideDescription(main.getDescriptionId()));
+        registerDefaultState(defaultBlockState().setValue(MID, false));
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(MID);
     }
 }

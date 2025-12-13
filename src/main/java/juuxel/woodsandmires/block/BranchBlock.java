@@ -1,46 +1,46 @@
 package juuxel.woodsandmires.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 
-public class BranchBlock extends Block implements Waterloggable {
-    public static final EnumProperty<Direction.Axis> AXIS = Properties.HORIZONTAL_AXIS;
-    public static final EnumProperty<Style> STYLE = EnumProperty.of("style", Style.class);
-    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+public class BranchBlock extends Block implements SimpleWaterloggedBlock {
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+    public static final EnumProperty<Style> STYLE = EnumProperty.create("style", Style.class);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     
-    private static final VoxelShape THIN_X_SHAPE = createCuboidShape(0, 6, 6, 16, 10, 10);
-    private static final VoxelShape THICK_X_SHAPE = createCuboidShape(0, 4, 4, 16, 12, 12);
-    private static final VoxelShape THIN_Z_SHAPE = createCuboidShape(6, 6, 0, 10, 10, 16);
-    private static final VoxelShape THICK_Z_SHAPE = createCuboidShape(4, 4, 0, 12, 12, 16);
+    private static final VoxelShape THIN_X_SHAPE = box(0, 6, 6, 16, 10, 10);
+    private static final VoxelShape THICK_X_SHAPE = box(0, 4, 4, 16, 12, 12);
+    private static final VoxelShape THIN_Z_SHAPE = box(6, 6, 0, 10, 10, 16);
+    private static final VoxelShape THICK_Z_SHAPE = box(4, 4, 0, 12, 12, 16);
 
-    public BranchBlock(Settings settings) {
+    public BranchBlock(Properties settings) {
         super(settings);
-        setDefaultState(getDefaultState().with(STYLE, Style.THIN).with(WATERLOGGED, false));
+        registerDefaultState(defaultBlockState().setValue(STYLE, Style.THIN).setValue(WATERLOGGED, false));
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public FluidState getFluidState(BlockState state) {
-        if (state.get(WATERLOGGED)) {
-            return Fluids.WATER.getStill(false);
+        if (state.getValue(WATERLOGGED)) {
+            return Fluids.WATER.getSource(false);
         }
 
         return super.getFluidState(state);
@@ -48,32 +48,32 @@ public class BranchBlock extends Block implements Waterloggable {
 
     @SuppressWarnings("deprecation")
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        switch (state.get(AXIS)) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        switch (state.getValue(AXIS)) {
             case X:
-                return state.get(STYLE) == Style.THIN ? THIN_X_SHAPE : THICK_X_SHAPE;
+                return state.getValue(STYLE) == Style.THIN ? THIN_X_SHAPE : THICK_X_SHAPE;
             case Z:
-                return state.get(STYLE) == Style.THIN ? THIN_Z_SHAPE : THICK_Z_SHAPE;
+                return state.getValue(STYLE) == Style.THIN ? THIN_Z_SHAPE : THICK_Z_SHAPE;
             default:
-                return VoxelShapes.fullCube();
+                return Shapes.block();
         }
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-        if (state.get(WATERLOGGED)) {
-            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+    protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        if (state.getValue(WATERLOGGED)) {
+            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
-        return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AXIS, STYLE, WATERLOGGED);
     }
 
-    public enum Style implements StringIdentifiable {
+    public enum Style implements StringRepresentable {
         THIN("thin"), THICK("thick");
 
         private final String id;
@@ -83,7 +83,7 @@ public class BranchBlock extends Block implements Waterloggable {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }

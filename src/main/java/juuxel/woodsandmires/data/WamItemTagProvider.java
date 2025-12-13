@@ -6,21 +6,21 @@ import juuxel.woodsandmires.item.WamItemTags;
 import juuxel.woodsandmires.item.WamItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.data.tag.ProvidedTagBuilder;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.data.tags.TagAppender;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.ItemTags;
 
 import java.util.concurrent.CompletableFuture;
 
 public final class WamItemTagProvider extends FabricTagProvider.ItemTagProvider {
-    public WamItemTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public WamItemTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture, null);
     }
 
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup arg) {
+    protected void addTags(HolderLookup.Provider arg) {
         // Minecraft tags
         valueLookupBuilder(ItemTags.BOATS)
             .add(WamItems.PINE_BOAT);
@@ -69,9 +69,9 @@ public final class WamItemTagProvider extends FabricTagProvider.ItemTagProvider 
 
         // Common tags
 
-        ProvidedTagBuilder<Item, Item> chains = valueLookupBuilder(CommonItemTags.CHAINS);
+        TagAppender<Item, Item> chains = valueLookupBuilder(CommonItemTags.CHAINS);
         chains.add(Items.IRON_CHAIN);
-        Items.COPPER_CHAINS.forEach(chains::add);
+        Items.COPPER_CHAIN.forEach(chains::add);
         valueLookupBuilder(CommonItemTags.HONEY)
             .add(WamItems.PINE_CONE_JAM);
         valueLookupBuilder(CommonItemTags.JAMS)

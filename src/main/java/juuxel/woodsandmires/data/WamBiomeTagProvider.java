@@ -4,25 +4,25 @@ import juuxel.woodsandmires.biome.WamBiomeKeys;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBiomeTags;
-import net.minecraft.data.tag.ProvidedTagBuilder;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BiomeTags;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.data.tags.TagAppender;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.biome.Biome;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public final class WamBiomeTagProvider extends FabricTagProvider<Biome> {
-    public WamBiomeTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-        super(output, RegistryKeys.BIOME, registriesFuture);
+    public WamBiomeTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+        super(output, Registries.BIOME, registriesFuture);
     }
 
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup arg) {
+    protected void addTags(HolderLookup.Provider arg) {
         // Vanilla tags
         generateOverworld(BiomeTags.IS_OVERWORLD);
         builder(BiomeTags.IS_FOREST)
@@ -40,8 +40,8 @@ public final class WamBiomeTagProvider extends FabricTagProvider<Biome> {
             .add(WamBiomeKeys.PINE_FOREST)
             .add(WamBiomeKeys.OLD_GROWTH_PINE_FOREST)
             .add(WamBiomeKeys.SNOWY_PINE_FOREST);
-        generateOverworld(BiomeTags.STRONGHOLD_HAS_STRUCTURE);
-        builder(BiomeTags.PILLAGER_OUTPOST_HAS_STRUCTURE)
+        generateOverworld(BiomeTags.HAS_STRONGHOLD);
+        builder(BiomeTags.HAS_PILLAGER_OUTPOST)
             .add(WamBiomeKeys.PINE_FOREST)
             .add(WamBiomeKeys.PINY_GROVE);
 
@@ -84,13 +84,13 @@ public final class WamBiomeTagProvider extends FabricTagProvider<Biome> {
     }
 
     static final class MultiBuilder<T> {
-        private final List<ProvidedTagBuilder<RegistryKey<T>, T>> builders;
+        private final List<TagAppender<ResourceKey<T>, T>> builders;
 
-        private MultiBuilder(List<ProvidedTagBuilder<RegistryKey<T>, T>> builders) {
+        private MultiBuilder(List<TagAppender<ResourceKey<T>, T>> builders) {
             this.builders = builders;
         }
 
-        public MultiBuilder<T> add(RegistryKey<T> key) {
+        public MultiBuilder<T> add(ResourceKey<T> key) {
             for (var builder : builders) {
                 builder.add(key);
             }

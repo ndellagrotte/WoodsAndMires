@@ -10,9 +10,9 @@ import juuxel.woodsandmires.WoodsAndMires;
 import juuxel.woodsandmires.block.WamBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.DataWriter;
-import net.minecraft.item.BlockItem;
-import net.minecraft.registry.Registries;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Util;
 
 import java.io.IOException;
@@ -24,32 +24,32 @@ import java.util.function.BiConsumer;
 public record WamItemModelProvider(FabricDataOutput output) implements DataProvider {
 
     @Override
-    public CompletableFuture<?> run(DataWriter writer) {
+    public CompletableFuture<?> run(CachedOutput writer) {
         BiConsumer<String, byte[]> assetWriter = (path, data) -> {
             try {
-                writer.write(this.output.getPath().resolve(path), data, HashCode.fromBytes(data));
+                writer.writeIfNeeded(this.output.getOutputFolder().resolve(path), data, HashCode.fromBytes(data));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         };
         return CompletableFuture.runAsync(() -> {
-            for (var item : Registries.ITEM) {
-                var id = Registries.ITEM.getId(item);
+            for (var item : BuiltInRegistries.ITEM) {
+                var id = BuiltInRegistries.ITEM.getKey(item);
                 if (!id.getNamespace().equals(WoodsAndMires.ID)) {
                     continue;
                 }
 
                 if (item instanceof BlockItem blockItem && blockItem.getBlock() == WamBlocks.PINE_LEAVES) {
-                    assetWriter.accept(AssetPaths.itemAsset(id), new ItemAsset(new BasicItemModel(id.withPrefixedPath("item/"),
+                    assetWriter.accept(AssetPaths.itemAsset(id), new ItemAsset(new BasicItemModel(id.withPrefix("item/"),
                         List.of(new ConstantTintSource(-12012264))), ItemAsset.Properties.DEFAULT).toJson().getBytes(StandardCharsets.UTF_8));
                 } else if (item instanceof BlockItem blockItem && (blockItem.getBlock() == WamBlocks.FIREWEED || blockItem.getBlock() == WamBlocks.TANSY)) {
-                    assetWriter.accept(AssetPaths.itemAsset(id), new ItemAsset(new BasicItemModel(id.withPrefixedPath("item/"),
+                    assetWriter.accept(AssetPaths.itemAsset(id), new ItemAsset(new BasicItemModel(id.withPrefix("item/"),
                         List.of(new GrassTintSource())), ItemAsset.Properties.DEFAULT).toJson().getBytes(StandardCharsets.UTF_8));
                 } else {
-                    assetWriter.accept(AssetPaths.itemAsset(id), new ItemAsset(new BasicItemModel(id.withPrefixedPath("item/")), ItemAsset.Properties.DEFAULT).toJson().getBytes(StandardCharsets.UTF_8));
+                    assetWriter.accept(AssetPaths.itemAsset(id), new ItemAsset(new BasicItemModel(id.withPrefix("item/")), ItemAsset.Properties.DEFAULT).toJson().getBytes(StandardCharsets.UTF_8));
                 }
             }
-        }, Util.getMainWorkerExecutor());
+        }, Util.backgroundExecutor());
     }
 
     @Override

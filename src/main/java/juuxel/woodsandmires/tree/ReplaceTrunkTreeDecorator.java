@@ -2,17 +2,17 @@ package juuxel.woodsandmires.tree;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.stateprovider.BlockStateProvider;
-import net.minecraft.world.gen.treedecorator.TreeDecorator;
-import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 
 public final class ReplaceTrunkTreeDecorator extends TreeDecorator {
     public static final MapCodec<ReplaceTrunkTreeDecorator> CODEC =
         RecordCodecBuilder.mapCodec(builder ->
             builder.group(
-                BlockStateProvider.TYPE_CODEC.fieldOf("trunk").forGetter(ReplaceTrunkTreeDecorator::getTrunk)
+                BlockStateProvider.CODEC.fieldOf("trunk").forGetter(ReplaceTrunkTreeDecorator::getTrunk)
             ).apply(builder, ReplaceTrunkTreeDecorator::new)
         );
     private final BlockStateProvider trunk;
@@ -26,17 +26,17 @@ public final class ReplaceTrunkTreeDecorator extends TreeDecorator {
     }
 
     @Override
-    protected TreeDecoratorType<?> getType() {
+    protected TreeDecoratorType<?> type() {
         return WamTreeDecorators.REPLACE_TRUNK;
     }
 
     @Override
-    public void generate(Generator generator) {
-        for (BlockPos pos : generator.getLogPositions()) {
+    public void place(Context generator) {
+        for (BlockPos pos : generator.logs()) {
             // Don't replace the dirt underneath the trunk
-            if (generator.getWorld().testBlockState(pos, Feature::isSoil)) continue;
+            if (generator.level().isStateAtPosition(pos, Feature::isDirt)) continue;
 
-            generator.replace(pos, trunk.get(generator.getRandom(), pos));
+            generator.setBlock(pos, trunk.getState(generator.random(), pos));
         }
     }
 }
