@@ -18,7 +18,6 @@ public final class WamConfiguredFeatureKeys {
     public static final ResourceKey<ConfiguredFeature<?, ?>> PLAINS_FLOWERS = key("plains_flowers");
     public static final ResourceKey<ConfiguredFeature<?, ?>> PINE_FROM_SAPLING = key("pine_from_sapling");
     public static final ResourceKey<ConfiguredFeature<?, ?>> PINE_FOREST_BOULDER = key("pine_forest_boulder");
-    public static final ResourceKey<ConfiguredFeature<?, ?>> FOREST_TANSY = key("forest_tansy");
     public static final ResourceKey<ConfiguredFeature<?, ?>> HEATHER_PATCH = key("heather_patch");
     public static final ResourceKey<ConfiguredFeature<?, ?>> LESS_PODZOL_PINE = key("less_podzol_pine");
     public static final ResourceKey<ConfiguredFeature<?, ?>> NO_PODZOL_PINE = key("no_podzol_pine");

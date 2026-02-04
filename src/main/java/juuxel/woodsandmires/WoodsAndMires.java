@@ -1,6 +1,5 @@
 package juuxel.woodsandmires;
 
-import juuxel.woodsandmires.biome.WamBiomeModifications;
 import juuxel.woodsandmires.block.WamBlockSetTypes;
 import juuxel.woodsandmires.block.WamBlocks;
 import juuxel.woodsandmires.block.WamWoodTypes;
@@ -31,7 +30,6 @@ public final class WoodsAndMires implements ModInitializer {
         WamItemGroups.init();
         WamTreeDecorators.register();
         WamFeatures.init();
-        WamBiomeModifications.init();
 
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
             WamDev.init();

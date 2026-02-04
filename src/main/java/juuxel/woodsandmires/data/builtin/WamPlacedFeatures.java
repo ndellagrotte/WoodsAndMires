@@ -10,8 +10,6 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.util.valueproviders.ClampedInt;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -91,22 +89,6 @@ public final class WamPlacedFeatures {
         register(registerable, WamPlacedFeatureKeys.PINY_GROVE_TREES, WamConfiguredFeatureKeys.PINY_GROVE_TREES, countExtraTreeModifiers(10, 0.1f, 1));
     }
 
-    private static void registerVanillaBiomes(BootstrapContext<PlacedFeature> registerable) {
-        register(registerable, WamPlacedFeatureKeys.PLAINS_FLOWERS, WamConfiguredFeatureKeys.PLAINS_FLOWERS, chanceModifiers(20));
-        register(registerable, WamPlacedFeatureKeys.FOREST_TANSY, WamConfiguredFeatureKeys.FOREST_TANSY,
-            cons(
-                CountPlacement.of(ClampedInt.of(UniformInt.of(-4, 1), 0, 1)),
-                chanceModifiers(7)
-            )
-        );
-        register(registerable, WamPlacedFeatureKeys.TAIGA_HEATHER_PATCH, WamConfiguredFeatureKeys.HEATHER_PATCH,
-            cons(
-                CountPlacement.of(ClampedInt.of(UniformInt.of(-4, 1), 0, 1)),
-                chanceModifiers(7)
-            )
-        );
-    }
-
     private WamPlacedFeatures() {
     }
 
@@ -115,7 +97,6 @@ public final class WamPlacedFeatures {
         registerMires(registerable);
         registerFells(registerable);
         registerGroves(registerable);
-        registerVanillaBiomes(registerable);
     }
 
     private static void register(BootstrapContext<PlacedFeature> registerable, ResourceKey<PlacedFeature> key,

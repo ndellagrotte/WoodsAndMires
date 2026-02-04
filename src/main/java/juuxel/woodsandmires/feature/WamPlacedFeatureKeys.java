@@ -39,11 +39,6 @@ public final class WamPlacedFeatureKeys {
     // Groves
     public static final ResourceKey<PlacedFeature> PINY_GROVE_TREES = key("piny_grove_trees");
 
-    // Vanilla biomes
-    public static final ResourceKey<PlacedFeature> PLAINS_FLOWERS = key("plains_flowers");
-    public static final ResourceKey<PlacedFeature> FOREST_TANSY = key("forest_tansy");
-    public static final ResourceKey<PlacedFeature> TAIGA_HEATHER_PATCH = key("taiga_heather_patch");
-
     private static ResourceKey<PlacedFeature> key(String id) {
         return ALL.add(ResourceKey.create(Registries.PLACED_FEATURE, WoodsAndMires.id(id)));
     }

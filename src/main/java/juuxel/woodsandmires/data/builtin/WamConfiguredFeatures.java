@@ -135,11 +135,6 @@ public final class WamConfiguredFeatures {
         register(WamConfiguredFeatureKeys.PINE_FOREST_BOULDER, Feature.FOREST_ROCK,
             new BlockStateConfiguration(Blocks.STONE.defaultBlockState())
         );
-        register(WamConfiguredFeatureKeys.FOREST_TANSY, Feature.RANDOM_PATCH,
-            FeatureUtils.simplePatchConfiguration(
-                Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(WamBlocks.TANSY))
-            )
-        );
         register(WamConfiguredFeatureKeys.HEATHER_PATCH, Feature.RANDOM_PATCH,
             FeatureUtils.simplePatchConfiguration(
                 Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(WamBlocks.HEATHER))
